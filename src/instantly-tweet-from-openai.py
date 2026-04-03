@@ -1,14 +1,7 @@
-import praw
+import feedparser
 import tweepy
 import os
 import random
-
-# ===== Reddit API =====
-reddit = praw.Reddit(
-    client_id=os.environ['REDDIT_CLIENT_ID'],
-    client_secret=os.environ['REDDIT_CLIENT_SECRET'],
-    user_agent="bot"
-)
 
 # ===== Twitter API =====
 client = tweepy.Client(
@@ -18,15 +11,18 @@ client = tweepy.Client(
     access_token_secret=os.environ['ACCESS_TOKEN_SECRET']
 )
 
-# ===== Get random post from Reddit =====
-subreddit = reddit.subreddit("technology")
+# ===== Reddit RSS Feed =====
+RSS_URL = "https://www.reddit.com/r/technology/.rss"
 
-posts = list(subreddit.hot(limit=20))
-post = random.choice(posts)
+feed = feedparser.parse(RSS_URL)
+entries = feed.entries
 
-tweet = post.title[:280]
+# اختار منشور عشوائي
+post = random.choice(entries)
 
-# ===== Post tweet =====
+tweet = post.title[:280]  # خذ العنوان فقط
+
+# ===== نشر التغريدة =====
 client.create_tweet(text=tweet)
 
 print("Tweet posted:", tweet)
