@@ -18,5 +18,8 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Debug secrets
+        run: echo $API_KEY
+
       - name: Run bot
         run: python src/instantly-tweet-from-openai.py
