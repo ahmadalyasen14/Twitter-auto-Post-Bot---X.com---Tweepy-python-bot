@@ -1,16 +1,32 @@
-import sys
+import praw
+import tweepy
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'config'))
-import keys
-from functions import generate_response, initialize_tweepy, get_formatted_date
+import random
 
-prompt = "Create a short tweet about Motorbikes."
-response = generate_response(prompt)
+# ===== Reddit API =====
+reddit = praw.Reddit(
+    client_id=os.environ['REDDIT_CLIENT_ID'],
+    client_secret=os.environ['REDDIT_CLIENT_SECRET'],
+    user_agent="bot"
+)
 
-def send_post():
-    client, _ = initialize_tweepy()
-    tweet_text = f"{response}"
-    client.create_tweet(text=tweet_text)
-    print("Tweet posted successfully")
+# ===== Twitter API =====
+client = tweepy.Client(
+    consumer_key=os.environ['API_KEY'],
+    consumer_secret=os.environ['API_SECRET'],
+    access_token=os.environ['ACCESS_TOKEN'],
+    access_token_secret=os.environ['ACCESS_TOKEN_SECRET']
+)
 
-send_post()
+# ===== Get random post from Reddit =====
+subreddit = reddit.subreddit("technology")
+
+posts = list(subreddit.hot(limit=20))
+post = random.choice(posts)
+
+tweet = post.title[:280]
+
+# ===== Post tweet =====
+client.create_tweet(text=tweet)
+
+print("Tweet posted:", tweet)
